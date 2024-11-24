@@ -1,0 +1,64 @@
+*Post->Contamination Rise
+
+
+.include /modelfile_65nm/maxNmaxP.cir
+.include OAI321.pex.spi
+
+.options reltol = 1e-6
+.temp = -40
+
+X1 A B C D E F Out clk gnd vdd OAIOver
+
+.param SUPPLY = 1.32
+.param tend = 500n
+*.param Wp = 0.135
+
+C Out gnd 25f
+
+vd vdd 0 SUPPLY
+vg gnd 0 0 
+
+*(lower_level upper_level starting_delay rise_time fall_time pulse_width total_time)
+V1 clk gnd PULSE (0 1.2 0 10p 10p 5n 10n )
+V2 A gnd PULSE (0 1.2 0 10p 10p 10n 20n )
+V3 B gnd PULSE (0 1.2 0 10p 10p 20n 40n )
+V4 C gnd PULSE (0 1.2 0 10p 10p 40n 80n )
+V5 D gnd PULSE (0 1.2 0 10p 10p 80n 160n )
+V6 E gnd PULSE (0 1.2 0 10p 10p 160n 320n )
+V7 F gnd PULSE (0 1.2 0 10p 10p 320n 640n )
+
+.probe v(*) v(X1.*)
+.probe i(*)
+
+.measure tran tplh
++ TRIG v(E) VAL='SUPPLY/2' FALL=3
++ TARG v(out) VAL='SUPPLY/2' RISE=2
+
+.measure tran tphl
++ TRIG v(E) VAL='SUPPLY/2' RISE=2
++ TARG v(out) VAL='SUPPLY/2' FALL=3
+
+.measure trise
++ TRIG v(out) VAL='0.2*SUPPLY' RISE=2
++ TARG v(out) VAL='0.8*SUPPLY' RISE=2
+
+.measure tfall
++ TRIG v(out) VAL='0.8*SUPPLY' FALL=2
++ TARG v(out) VAL='0.2*SUPPLY' FALL=2
+
+.extract label= leakage_current1 abs'(integ(I(VD),241n,245n)/(245n-241n))'
+.extract label= leakage_current2 abs'(integ(I(VD),245.93136n,250n)/(250n-245.93136n))'
+.measure TRAN leakage_current PARAM =('leakage_current1 + leakage_current2'/2)
+.measure TRAN static_power_original PARAM = (' SUPPLY * leakage_current')
+
+.extract label = dynamic_charge1 abs'(integ(I(VD),239.94528n,241n))'
+.extract label = dynamic_charge2 abs'(integ(I(VD),244.45636n,245.93136n))'
+
+.measure TRAN new_dynamic_power1 PARAM = ('SUPPLY * dynamic_charge1 / (245n-240n)')
+.measure TRAN new_dynamic_power2 PARAM = ('SUPPLY * dynamic_charge2 / (250n-245n)')
+.measure TRAN new_dynamic_power PARAM =('new_dynamic_power1 + new_dynamic_power2'/2)
+
+
+.tran 1p tend
+*.tran 10p tend sweep Wp 0.135 1.35 0.05
+.end
