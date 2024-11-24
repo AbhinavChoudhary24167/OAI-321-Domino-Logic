@@ -47,5 +47,3 @@ The project evaluates the following metrics:
 - **Area**  
 
 --- 
-
-This structure ensures clarity and readability, making it suitable for a professional README file on GitHub.
