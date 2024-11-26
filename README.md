@@ -27,8 +27,8 @@ This project involves the layout and implementation of a complex gate, followed 
 ---
 
 ## **Designs Implemented**  
-1. **OAI-33 Domino Logic Complex and its Layout**  
-2. **OAI-33 Logic Non-Complex and its Layout**  
+1. **OAI-321 Domino Logic Complex and its Layout**  
+2. **OAI-321 Logic Non-Complex and its Layout**  
 
 ---
 
